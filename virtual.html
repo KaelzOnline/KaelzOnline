@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nomor Virtual - KaelzOnline</title>
+<style>
+*{box-sizing:border-box;font-family:Arial;margin:0;padding:0}
+body{background:#f4f7fb}
+header{background:#0d6efd;color:white;padding:18px 20px;display:flex;justify-content:space-between}
+.logo{font-size:22px;font-weight:bold}.back{color:white;text-decoration:none}
+.container{max-width:700px;margin:25px auto;padding:15px}
+.card{background:white;padding:20px;border-radius:16px;box-shadow:0 5px 20px #0001;margin-bottom:18px}
+h2{margin-bottom:15px}
+label{display:block;font-weight:bold;margin:15px 0 7px}
+select,textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;font-size:15px}
+textarea{min-height:100px;resize:vertical}
+.packages{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.package{padding:15px;border:2px solid #ddd;border-radius:12px;cursor:pointer}
+.package.active{border-color:#0d6efd;background:#eef6ff}
+.package b{display:block;margin-bottom:6px}
+.price{color:#0d6efd;font-weight:bold}
+.info{background:#f1f5f9;padding:12px;border-radius:10px;margin-top:15px}
+button{width:100%;padding:15px;border:0;border-radius:12px;background:#0d6efd;color:white;font-weight:bold;font-size:16px;margin-top:18px}
+button:disabled{background:#aaa}
+@media(max-width:500px){.packages{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">KaelzOnline</div>
+<a href="index.html" class="back">← Beranda</a>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>📱 Nomor Virtual</h2>
+
+<label>Negara</label>
+<select id="country">
+<option value="">-- Pilih Negara --</option>
+<option>Indonesia</option>
+<option>Malaysia</option>
+<option>Singapore</option>
+<option>Thailand</option>
+</select>
+
+<label>Catatan</label>
+<textarea id="note" placeholder="Catatan tambahan (opsional)"></textarea>
+</div>
+
+<div class="card">
+<h2>Pilih Paket</h2>
+
+<div class="packages">
+
+<div class="package" data-product="1 Hari" data-price="10000">
+<b>1 Hari</b>
+<span class="price">Rp10.000</span>
+</div>
+
+<div class="package" data-product="7 Hari" data-price="30000">
+<b>7 Hari</b>
+<span class="price">Rp30.000</span>
+</div>
+
+<div class="package" data-product="30 Hari" data-price="75000">
+<b>30 Hari</b>
+<span class="price">Rp75.000</span>
+</div>
+
+</div>
+
+<div class="info">
+Paket: <b id="product">Belum dipilih</b><br>
+Harga: <b id="price">Rp0</b>
+</div>
+
+<button id="btn" disabled>Lanjut ke Checkout</button>
+</div>
+
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyBl_Tq-Bl0oU3PtLn_5Ngpyta5X7-KXgDc",
+authDomain:"kaelzonline.firebaseapp.com",
+databaseURL:"https://kaelzonline-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"kaelzonline",
+storageBucket:"kaelzonline.firebasestorage.app",
+messagingSenderId:"1082420786764",
+appId:"1:1082420786764:web:24fee4ebccceb36d6566e9"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+
+let user=null,product="",price=0;
+
+onAuthStateChanged(auth,u=>{
+if(!u) location.href="login.html";
+user=u;
+check();
+});
+
+document.querySelectorAll(".package").forEach(x=>{
+x.onclick=()=>{
+document.querySelectorAll(".package").forEach(n=>n.classList.remove("active"));
+x.classList.add("active");
+product=x.dataset.product;
+price=Number(x.dataset.price);
+document.getElementById("product").textContent=product;
+document.getElementById("price").textContent="Rp"+price.toLocaleString("id-ID");
+check();
+};
+});
+
+function check(){
+btn.disabled=!user||!country.value||!product;
+}
+
+country.onchange=check;
+
+btn.onclick=()=>{
+sessionStorage.setItem("checkoutData",JSON.stringify({
+category:"virtual",
+product:product,
+price:price,
+country:country.value,
+note:note.value.trim()
+}));
+location.href="checkout.html";
+};
+</script>
+</body>
+</html>

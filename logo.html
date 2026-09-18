@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Jasa Logo - KaelzOnline</title>
+<style>
+*{box-sizing:border-box;font-family:Arial;margin:0;padding:0}
+body{background:#f4f7fb}
+header{background:#0d6efd;color:white;padding:18px 20px;display:flex;justify-content:space-between}
+.logo{font-size:22px;font-weight:bold}.back{color:white;text-decoration:none}
+.container{max-width:700px;margin:25px auto;padding:15px}
+.card{background:white;padding:20px;border-radius:16px;box-shadow:0 5px 20px #0001;margin-bottom:18px}
+h2{margin-bottom:15px}
+label{display:block;font-weight:bold;margin:15px 0 7px}
+input,textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;font-size:15px}
+textarea{min-height:130px;resize:vertical}
+.packages{display:grid;grid-template-columns:1fr;gap:10px}
+.package{padding:16px;border:2px solid #ddd;border-radius:12px;cursor:pointer}
+.package.active{border-color:#0d6efd;background:#eef6ff}
+.package b{display:block;margin-bottom:6px}
+.price{color:#0d6efd;font-weight:bold}
+.info{background:#f1f5f9;padding:12px;border-radius:10px;margin-top:15px}
+button{width:100%;padding:15px;border:0;border-radius:12px;background:#0d6efd;color:white;font-weight:bold;font-size:16px;margin-top:18px}
+button:disabled{background:#aaa}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">KaelzOnline</div>
+<a href="index.html" class="back">← Beranda</a>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>🎨 Jasa Pembuatan Logo</h2>
+
+<label>Nama Brand</label>
+<input id="brand" placeholder="Contoh: Kaelz Store">
+
+<label>Brief / Konsep Logo</label>
+<textarea id="brief" placeholder="Jelaskan konsep logo yang kamu inginkan..."></textarea>
+</div>
+
+<div class="card">
+<h2>Pilih Paket</h2>
+
+<div class="packages">
+
+<div class="package" data-product="Basic" data-price="25000">
+<b>Basic</b>
+<span class="price">Rp25.000</span>
+</div>
+
+<div class="package" data-product="Premium" data-price="50000">
+<b>Premium</b>
+<span class="price">Rp50.000</span>
+</div>
+
+<div class="package" data-product="Custom" data-price="100000">
+<b>Custom</b>
+<span class="price">Rp100.000</span>
+</div>
+
+</div>
+
+<div class="info">
+Paket: <b id="product">Belum dipilih</b><br>
+Harga: <b id="price">Rp0</b>
+</div>
+
+<button id="btn" disabled>Lanjut ke Checkout</button>
+</div>
+
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import{getAuth,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyBl_Tq-Bl0oU3PtLn_5Ngpyta5X7-KXgDc",
+authDomain:"kaelzonline.firebaseapp.com",
+databaseURL:"https://kaelzonline-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"kaelzonline",
+storageBucket:"kaelzonline.firebasestorage.app",
+messagingSenderId:"1082420786764",
+appId:"1:1082420786764:web:24fee4ebccceb36d6566e9"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+
+let user=null,product="",price=0;
+
+onAuthStateChanged(auth,u=>{
+if(!u) location.href="login.html";
+user=u;
+check();
+});
+
+document.querySelectorAll(".package").forEach(x=>{
+x.onclick=()=>{
+document.querySelectorAll(".package").forEach(n=>n.classList.remove("active"));
+x.classList.add("active");
+product=x.dataset.product;
+price=Number(x.dataset.price);
+document.getElementById("product").textContent=product;
+document.getElementById("price").textContent="Rp"+price.toLocaleString("id-ID");
+check();
+};
+});
+
+function check(){
+btn.disabled=!user||!brand.value.trim()||!brief.value.trim()||!product;
+}
+
+brand.oninput=check;
+brief.oninput=check;
+
+btn.onclick=()=>{
+sessionStorage.setItem("checkoutData",JSON.stringify({
+category:"logo",
+product:product,
+price:price,
+brand:brand.value.trim(),
+brief:brief.value.trim()
+}));
+location.href="checkout.html";
+};
+</script>
+</body>
+</html>

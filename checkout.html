@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout - KaelzOnline</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f3f6fa;
+  color:#111827;
+}
+
+header{
+  background:#0d6efd;
+  color:white;
+  padding:18px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.back{
+  color:white;
+  text-decoration:none;
+  font-size:14px;
+}
+
+.container{
+  max-width:650px;
+  margin:25px auto;
+  padding:0 15px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:17px;
+  box-shadow:0 5px 20px rgba(0,0,0,.07);
+  margin-bottom:18px;
+}
+
+h2{
+  font-size:20px;
+  margin-bottom:18px;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:12px 0;
+  border-bottom:1px solid #edf0f3;
+  font-size:14px;
+}
+
+.row span{
+  color:#6b7280;
+}
+
+.row b{
+  text-align:right;
+  max-width:60%;
+  word-break:break-word;
+}
+
+.total{
+  display:flex;
+  justify-content:space-between;
+  margin-top:18px;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.total span:last-child{
+  color:#0d6efd;
+}
+
+.detail{
+  background:#f1f5f9;
+  padding:14px;
+  border-radius:11px;
+  margin-top:18px;
+  font-size:14px;
+  line-height:1.8;
+  word-break:break-word;
+}
+
+.methods{
+  display:grid;
+  gap:11px;
+}
+
+.method{
+  border:2px solid #e1e5ea;
+  padding:16px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.method.active{
+  border-color:#0d6efd;
+  background:#eef6ff;
+  color:#0d6efd;
+}
+
+.qris-box{
+  display:none;
+  margin-top:18px;
+  text-align:center;
+  background:#f8fafc;
+  border-radius:14px;
+  padding:15px;
+  border:1px solid #e5e7eb;
+}
+
+.qris-box.show{
+  display:block;
+}
+
+.qris-box img{
+  width:100%;
+  max-width:330px;
+  border-radius:10px;
+  background:white;
+  padding:8px;
+}
+
+.qris-title{
+  font-weight:bold;
+  font-size:18px;
+  margin-bottom:10px;
+}
+
+.qris-note{
+  font-size:13px;
+  color:#555;
+  line-height:1.6;
+  margin-top:12px;
+}
+
+.instruction{
+  display:none;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  color:#9a3412;
+  padding:13px;
+  border-radius:10px;
+  margin-top:15px;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.instruction.show{
+  display:block;
+}
+
+.upload-box{
+  margin-top:20px;
+  padding:16px;
+  background:#f8fafc;
+  border:2px dashed #cbd5e1;
+  border-radius:12px;
+}
+
+.upload-box label{
+  display:block;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+input[type="file"]{
+  width:100%;
+  padding:10px;
+  background:white;
+  border:1px solid #ddd;
+  border-radius:8px;
+  font-size:13px;
+}
+
+.warning{
+  margin-top:13px;
+  padding:13px;
+  border-radius:10px;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  color:#b91c1c;
+  font-size:13px;
+  line-height:1.7;
+}
+
+.file-status{
+  margin-top:10px;
+  font-size:13px;
+  color:#555;
+  word-break:break-word;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  margin-top:20px;
+  border:0;
+  border-radius:12px;
+  background:#0d6efd;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:disabled{
+  background:#aab2bd;
+  cursor:not-allowed;
+}
+
+.cancel{
+  display:block;
+  text-align:center;
+  margin-top:15px;
+  color:#6b7280;
+  text-decoration:none;
+  font-size:14px;
+}
+
+.loading{
+  display:none;
+  text-align:center;
+  color:#0d6efd;
+  font-size:13px;
+  margin-top:12px;
+}
+
+.loading.show{
+  display:block;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">KaelzOnline</div>
+  <a href="index.html" class="back">← Beranda</a>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>🛒 Ringkasan Pesanan</h2>
+
+    <div class="row">
+      <span>Produk</span>
+      <b id="product">-</b>
+    </div>
+
+    <div class="row">
+      <span>Kategori</span>
+      <b id="category">-</b>
+    </div>
+
+    <div class="row">
+      <span>Harga</span>
+      <b id="price">Rp0</b>
+    </div>
+
+    <div id="detail" class="detail"></div>
+
+    <div class="total">
+      <span>Total</span>
+      <span id="total">Rp0</span>
+    </div>
+  </div>
+
+
+  <div class="card">
+    <h2>💳 Pilih Pembayaran</h2>
+
+    <div class="methods">
+
+      <div class="method" data-method="QRIS">
+        📱 Bayar dengan QRIS
+      </div>
+
+      <div class="method" data-method="Transfer Bank">
+        🏦 Transfer Bank
+      </div>
+
+      <div class="method" data-method="E-Wallet">
+        💰 E-Wallet
+      </div>
+
+    </div>
+
+    <div id="qrisBox" class="qris-box">
+
+      <div class="qris-title">
+        📱 Scan QRIS Untuk Membayar
+      </div>
+
+      <img src="qris.jpg" alt="QRIS KaelzOnline">
+
+      <div class="qris-note">
+        Scan QRIS menggunakan aplikasi pembayaran yang mendukung QRIS.
+        Bayar sesuai nominal total pesanan.
+      </div>
+
+    </div>
+
+    <div id="otherInstruction" class="instruction">
+      Silakan hubungi admin KaelzOnline untuk mendapatkan instruksi
+      pembayaran metode ini.
+    </div>
+
+
+    <div class="upload-box">
+
+      <label>📎 Upload Bukti Pembayaran</label>
+
+      <input
+        type="file"
+        id="proofFile"
+        accept=".jpg,.jpeg,.png,.pdf"
+      >
+
+      <div class="file-status" id="fileStatus">
+        Belum ada file dipilih.
+      </div>
+
+      <div class="warning">
+        ⚠️ <b>Peringatan Penting:</b><br>
+        Bukti pembayaran wajib berupa bukti asli dari aplikasi pembayaran.
+        Pastikan seluruh detail terlihat jelas, termasuk nominal, tanggal,
+        waktu, status berhasil, dan nomor referensi transaksi.
+        <br><br>
+        Dilarang mengirim bukti yang diedit, dimanipulasi, dipotong,
+        ditutupi, atau dibuat-buat. Bukti yang tidak valid akan ditolak
+        dan pesanan dapat dibatalkan.
+      </div>
+
+    </div>
+
+    <div class="loading" id="loading">
+      ⏳ Sedang mengupload bukti dan menyimpan pesanan...
+    </div>
+
+    <button id="confirmBtn" disabled>
+      Saya Sudah Bayar & Kirim Bukti
+    </button>
+
+    <a href="index.html" class="cancel">
+      Batalkan dan kembali
+    </a>
+
+  </div>
+
+</div>
+
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  push,
+  set
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBl_Tq-Bl0oU3PtLn_5Ngpyta5X7-KXgDc",
+  authDomain: "kaelzonline.firebaseapp.com",
+  databaseURL: "https://kaelzonline-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kaelzonline",
+  storageBucket: "kaelzonline.firebasestorage.app",
+  messagingSenderId: "1082420786764",
+  appId: "1:1082420786764:web:24fee4ebccceb36d6566e9"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const storage = getStorage(app);
+
+let currentUser = null;
+let selectedPayment = "";
+let selectedFile = null;
+
+const checkoutData = JSON.parse(
+  sessionStorage.getItem("checkoutData") || "null"
+);
+
+if(!checkoutData){
+
+  alert("Data checkout tidak ditemukan.");
+  location.href = "index.html";
+
+}
+
+
+onAuthStateChanged(auth, (user) => {
+
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+
+  currentUser = user;
+  checkReady();
+
+});
+
+
+function formatRupiah(number){
+  return "Rp" + Number(number).toLocaleString("id-ID");
+}
+
+
+document.getElementById("product").textContent =
+  checkoutData.product || "-";
+
+document.getElementById("category").textContent =
+  checkoutData.category || "-";
+
+document.getElementById("price").textContent =
+  formatRupiah(checkoutData.price || 0);
+
+document.getElementById("total").textContent =
+  formatRupiah(checkoutData.price || 0);
+
+
+// Detail pesanan
+let detailHTML = "";
+
+if(checkoutData.category === "game"){
+
+  detailHTML =
+    "🎮 Game: " + checkoutData.game +
+    "<br>🆔 Game ID: " + checkoutData.gameId +
+    "<br>🌐 Server / Zone: " + checkoutData.serverId;
+
+}
+
+else if(checkoutData.category === "ewallet"){
+
+  detailHTML =
+    "💳 E-Wallet: " + checkoutData.wallet +
+    "<br>📱 Nomor Tujuan: " + checkoutData.target;
+
+}
+
+else if(checkoutData.category === "virtual"){
+
+  detailHTML =
+    "🌍 Negara: " + checkoutData.country;
+
+  if(checkoutData.note){
+    detailHTML += "<br>📝 Catatan: " + checkoutData.note;
+  }
+
+}
+
+else if(checkoutData.category === "logo"){
+
+  detailHTML =
+    "🏷️ Nama Brand: " + checkoutData.brand +
+    "<br>📝 Brief: " + checkoutData.brief;
+
+}
+
+document.getElementById("detail").innerHTML = detailHTML;
+
+
+// Pilih metode pembayaran
+document.querySelectorAll(".method").forEach((method) => {
+
+  method.addEventListener("click", () => {
+
+    document.querySelectorAll(".method")
+      .forEach((item) => item.classList.remove("active"));
+
+    method.classList.add("active");
+
+    selectedPayment = method.dataset.method;
+
+    if(selectedPayment === "QRIS"){
+
+      document.getElementById("qrisBox")
+        .classList.add("show");
+
+      document.getElementById("otherInstruction")
+        .classList.remove("show");
+
+    }else{
+
+      document.getElementById("qrisBox")
+        .classList.remove("show");
+
+      document.getElementById("otherInstruction")
+        .classList.add("show");
+
+    }
+
+    checkReady();
+
+  });
+
+});
+
+
+// Pilih file bukti
+document.getElementById("proofFile")
+.addEventListener("change", (event) => {
+
+  const file = event.target.files[0];
+
+  if(!file){
+    selectedFile = null;
+    document.getElementById("fileStatus").textContent =
+      "Belum ada file dipilih.";
+    checkReady();
+    return;
+  }
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "application/pdf"
+  ];
+
+  if(!allowedTypes.includes(file.type)){
+
+    alert("Format harus JPG, JPEG, PNG, atau PDF.");
+
+    event.target.value = "";
+    selectedFile = null;
+    checkReady();
+    return;
+
+  }
+
+  if(file.size > 5 * 1024 * 1024){
+
+    alert("Ukuran file maksimal 5 MB.");
+
+    event.target.value = "";
+    selectedFile = null;
+    checkReady();
+    return;
+
+  }
+
+  selectedFile = file;
+
+  document.getElementById("fileStatus").textContent =
+    "File dipilih: " + file.name;
+
+  checkReady();
+
+});
+
+
+// Tombol aktif jika semua lengkap
+function checkReady(){
+
+  document.getElementById("confirmBtn").disabled =
+    !currentUser ||
+    !selectedPayment ||
+    !selectedFile;
+
+}
+
+
+// Konfirmasi dan upload
+document.getElementById("confirmBtn")
+.addEventListener("click", async () => {
+
+  if(!currentUser){
+    alert("Kamu harus login terlebih dahulu.");
+    return;
+  }
+
+  if(!selectedPayment){
+    alert("Pilih metode pembayaran terlebih dahulu.");
+    return;
+  }
+
+  if(!selectedFile){
+    alert("Upload bukti pembayaran terlebih dahulu.");
+    return;
+  }
+
+  const confirmSend = confirm(
+    "Saya menyatakan bukti pembayaran ini asli, lengkap, " +
+    "tidak diedit, tidak dimanipulasi, dan sesuai transaksi."
+  );
+
+  if(!confirmSend) return;
+
+  const button = document.getElementById("confirmBtn");
+  const loading = document.getElementById("loading");
+
+  button.disabled = true;
+  loading.classList.add("show");
+
+  try{
+
+    const orderRef = push(
+      ref(db, "orders/" + currentUser.uid)
+    );
+
+    const orderId = orderRef.key;
+
+    // Upload bukti ke Firebase Storage
+    const filePath =
+      "payment_proofs/" +
+      currentUser.uid +
+      "/" +
+      orderId +
+      "_" +
+      selectedFile.name;
+
+    const fileRef = storageRef(storage, filePath);
+
+    await uploadBytes(fileRef, selectedFile);
+
+    const proofURL = await getDownloadURL(fileRef);
+
+
+    const order = {
+
+      orderId: orderId,
+
+      userId: currentUser.uid,
+
+      email: currentUser.email,
+
+      category: checkoutData.category,
+
+      product: checkoutData.product,
+
+      price: Number(checkoutData.price),
+
+      paymentMethod: selectedPayment,
+
+      proofURL: proofURL,
+
+      proofFileName: selectedFile.name,
+
+      status: "waiting_verification",
+
+      createdAt: Date.now()
+
+    };
+
+
+    if(checkoutData.category === "game"){
+
+      order.game = checkoutData.game;
+      order.gameId = checkoutData.gameId;
+      order.serverId = checkoutData.serverId;
+
+    }
+
+    if(checkoutData.category === "ewallet"){
+
+      order.wallet = checkoutData.wallet;
+      order.target = checkoutData.target;
+
+    }
+
+    if(checkoutData.category === "virtual"){
+
+      order.country = checkoutData.country;
+      order.note = checkoutData.note || "";
+
+    }
+
+    if(checkoutData.category === "logo"){
+
+      order.brand = checkoutData.brand;
+      order.brief = checkoutData.brief;
+
+    }
+
+
+    await set(orderRef, order);
+
+    sessionStorage.removeItem("checkoutData");
+
+    alert(
+      "Pesanan berhasil dikirim!\\n\\n" +
+      "Bukti pembayaran sudah diterima.\\n" +
+      "Status: Menunggu Verifikasi Admin."
+    );
+
+    location.href = "orders.html";
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Gagal mengupload bukti atau menyimpan pesanan. " +
+      "Periksa koneksi dan Firebase Storage."
+    );
+
+    button.disabled = false;
+    loading.classList.remove("show");
+
+  }
+
+});
+
+</script>
+
+</body>
+</html>

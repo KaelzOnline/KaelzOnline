@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Up Game - KaelzOnline</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f4f7fb;
+  color:#111;
+}
+
+header{
+  background:#0d6efd;
+  color:white;
+  padding:18px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.back{
+  color:white;
+  text-decoration:none;
+  font-size:14px;
+}
+
+.container{
+  max-width:800px;
+  margin:25px auto;
+  padding:0 15px;
+}
+
+.card{
+  background:white;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:18px;
+  box-shadow:0 5px 20px rgba(0,0,0,.07);
+}
+
+h2{
+  margin-bottom:15px;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin:14px 0 7px;
+}
+
+select,input{
+  width:100%;
+  padding:13px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  outline:none;
+  font-size:15px;
+}
+
+select:focus,input:focus{
+  border-color:#0d6efd;
+}
+
+.nominals{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.nominal{
+  border:2px solid #ddd;
+  background:white;
+  padding:14px;
+  border-radius:12px;
+  cursor:pointer;
+  text-align:left;
+}
+
+.nominal:hover{
+  border-color:#0d6efd;
+}
+
+.nominal.active{
+  border-color:#0d6efd;
+  background:#eef6ff;
+}
+
+.nominal b{
+  display:block;
+  margin-bottom:5px;
+}
+
+.price{
+  color:#0d6efd;
+  font-weight:bold;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  border:0;
+  border-radius:12px;
+  background:#0d6efd;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:18px;
+}
+
+button:disabled{
+  background:#aaa;
+  cursor:not-allowed;
+}
+
+.info{
+  background:#f1f5f9;
+  padding:12px;
+  border-radius:10px;
+  margin-top:15px;
+  font-size:14px;
+}
+
+@media(max-width:500px){
+  .nominals{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">KaelzOnline</div>
+  <a href="index.html" class="back">← Beranda</a>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>🎮 Top Up Game</h2>
+
+    <label>Pilih Game</label>
+    <select id="game">
+      <option value="">-- Pilih Game --</option>
+      <option value="Mobile Legends">Mobile Legends</option>
+      <option value="Free Fire">Free Fire</option>
+      <option value="PUBG Mobile">PUBG Mobile</option>
+      <option value="Roblox">Roblox</option>
+    </select>
+
+    <label>Game ID</label>
+    <input
+      type="text"
+      id="gameId"
+      placeholder="Masukkan Game ID"
+    >
+
+    <label>Server / Zone ID</label>
+    <input
+      type="text"
+      id="serverId"
+      placeholder="Masukkan Server / Zone ID"
+    >
+  </div>
+
+  <div class="card">
+    <h2>💎 Pilih Nominal</h2>
+
+    <div class="nominals">
+
+      <div class="nominal" data-product="86 Diamonds" data-price="20000">
+        <b>86 Diamonds</b>
+        <span class="price">Rp20.000</span>
+      </div>
+
+      <div class="nominal" data-product="172 Diamonds" data-price="39000">
+        <b>172 Diamonds</b>
+        <span class="price">Rp39.000</span>
+      </div>
+
+      <div class="nominal" data-product="257 Diamonds" data-price="57000">
+        <b>257 Diamonds</b>
+        <span class="price">Rp57.000</span>
+      </div>
+
+      <div class="nominal" data-product="344 Diamonds" data-price="75000">
+        <b>344 Diamonds</b>
+        <span class="price">Rp75.000</span>
+      </div>
+
+    </div>
+
+    <div class="info">
+      <b>Produk:</b> <span id="selectedProduct">Belum dipilih</span><br>
+      <b>Harga:</b> <span id="selectedPrice">Rp0</span>
+    </div>
+
+    <button id="checkoutBtn" disabled>
+      Lanjut ke Checkout
+    </button>
+  </div>
+
+</div>
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBl_Tq-Bl0oU3PtLn_5Ngpyta5X7-KXgDc",
+  authDomain: "kaelzonline.firebaseapp.com",
+  databaseURL: "https://kaelzonline-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kaelzonline",
+  storageBucket: "kaelzonline.firebasestorage.app",
+  messagingSenderId: "1082420786764",
+  appId: "1:1082420786764:web:24fee4ebccceb36d6566e9"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+let currentUser = null;
+let selectedProduct = "";
+let selectedPrice = 0;
+
+
+// Cek login
+onAuthStateChanged(auth, (user) => {
+
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+
+  currentUser = user;
+
+});
+
+
+// Pilih nominal
+document.querySelectorAll(".nominal").forEach(item => {
+
+  item.addEventListener("click", () => {
+
+    document.querySelectorAll(".nominal")
+      .forEach(x => x.classList.remove("active"));
+
+    item.classList.add("active");
+
+    selectedProduct = item.dataset.product;
+    selectedPrice = Number(item.dataset.price);
+
+    document.getElementById("selectedProduct").textContent =
+      selectedProduct;
+
+    document.getElementById("selectedPrice").textContent =
+      "Rp" + selectedPrice.toLocaleString("id-ID");
+
+    checkForm();
+
+  });
+
+});
+
+
+// Cek form
+function checkForm(){
+
+  const game =
+    document.getElementById("game").value;
+
+  const gameId =
+    document.getElementById("gameId").value.trim();
+
+  const serverId =
+    document.getElementById("serverId").value.trim();
+
+  document.getElementById("checkoutBtn").disabled =
+    !currentUser ||
+    !game ||
+    !gameId ||
+    !serverId ||
+    !selectedProduct;
+
+}
+
+
+// Event input
+document.getElementById("game")
+  .addEventListener("change", checkForm);
+
+document.getElementById("gameId")
+  .addEventListener("input", checkForm);
+
+document.getElementById("serverId")
+  .addEventListener("input", checkForm);
+
+
+// Checkout
+document.getElementById("checkoutBtn")
+  .addEventListener("click", () => {
+
+    const game =
+      document.getElementById("game").value;
+
+    const gameId =
+      document.getElementById("gameId").value.trim();
+
+    const serverId =
+      document.getElementById("serverId").value.trim();
+
+
+    const checkoutData = {
+
+      category: "game",
+
+      product: selectedProduct,
+
+      price: selectedPrice,
+
+      game: game,
+
+      gameId: gameId,
+
+      serverId: serverId
+
+    };
+
+
+    // Simpan sementara sebelum masuk checkout
+    sessionStorage.setItem(
+      "checkoutData",
+      JSON.stringify(checkoutData)
+    );
+
+
+    // Masuk halaman checkout
+    location.href = "checkout.html";
+
+  });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>E-Wallet - KaelzOnline</title>
+<style>
+*{box-sizing:border-box;font-family:Arial;margin:0;padding:0}
+body{background:#f4f7fb;color:#111}
+header{background:#0d6efd;color:white;padding:18px 20px;display:flex;justify-content:space-between}
+.logo{font-size:22px;font-weight:bold}.back{color:white;text-decoration:none}
+.container{max-width:700px;margin:25px auto;padding:15px}
+.card{background:white;padding:20px;border-radius:16px;box-shadow:0 5px 20px #0001;margin-bottom:18px}
+h2{margin-bottom:15px}
+label{display:block;font-weight:bold;margin:15px 0 7px}
+select,input{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;font-size:15px}
+.nominals{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nominal{padding:15px;border:2px solid #ddd;border-radius:12px;cursor:pointer}
+.nominal.active{border-color:#0d6efd;background:#eef6ff}
+.nominal b{display:block;margin-bottom:5px}
+.price{color:#0d6efd;font-weight:bold}
+.info{background:#f1f5f9;padding:12px;border-radius:10px;margin-top:15px}
+button{width:100%;padding:15px;border:0;border-radius:12px;background:#0d6efd;color:white;font-weight:bold;font-size:16px;margin-top:18px}
+button:disabled{background:#aaa}
+@media(max-width:500px){.nominals{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">KaelzOnline</div>
+<a href="index.html" class="back">← Beranda</a>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>💳 Top Up E-Wallet</h2>
+
+<label>Pilih E-Wallet</label>
+<select id="wallet">
+<option value="">-- Pilih E-Wallet --</option>
+<option>DANA</option>
+<option>OVO</option>
+<option>GoPay</option>
+<option>ShopeePay</option>
+</select>
+
+<label>Nomor Tujuan</label>
+<input id="target" type="tel" placeholder="08xxxxxxxxxx">
+</div>
+
+<div class="card">
+<h2>Pilih Nominal</h2>
+
+<div class="nominals">
+
+<div class="nominal" data-product="Rp10.000" data-price="10500">
+<b>Rp10.000</b>
+<span class="price">Bayar Rp10.500</span>
+</div>
+
+<div class="nominal" data-product="Rp20.000" data-price="20500">
+<b>Rp20.000</b>
+<span class="price">Bayar Rp20.500</span>
+</div>
+
+<div class="nominal" data-product="Rp50.000" data-price="50500">
+<b>Rp50.000</b>
+<span class="price">Bayar Rp50.500</span>
+</div>
+
+<div class="nominal" data-product="Rp100.000" data-price="100500">
+<b>Rp100.000</b>
+<span class="price">Bayar Rp100.500</span>
+</div>
+
+</div>
+
+<div class="info">
+Produk: <b id="product">Belum dipilih</b><br>
+Harga: <b id="price">Rp0</b>
+</div>
+
+<button id="btn" disabled>Lanjut ke Checkout</button>
+</div>
+
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebase

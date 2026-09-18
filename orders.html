@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pesanan Saya - KaelzOnline</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#05070a;
+  color:white;
+  min-height:100vh;
+}
+
+header{
+  height:65px;
+  background:#080b10;
+  border-bottom:1px solid #263442;
+  display:flex;
+  align-items:center;
+  gap:15px;
+  padding:0 18px;
+}
+
+.back{
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:10px;
+  background:#17202a;
+  color:white;
+  font-size:23px;
+}
+
+.container{
+  max-width:700px;
+  margin:auto;
+  padding:25px 17px 40px;
+}
+
+h1{
+  font-size:25px;
+  margin-bottom:7px;
+}
+
+.desc{
+  color:#8b98a7;
+  font-size:13px;
+  margin-bottom:22px;
+}
+
+.order{
+  background:#111820;
+  border:1px solid #263442;
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:14px;
+}
+
+.order-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.order-title{
+  font-size:16px;
+  font-weight:bold;
+}
+
+.status{
+  background:#17202a;
+  color:#4da3ff;
+  border-radius:8px;
+  padding:6px 9px;
+  font-size:11px;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  padding:6px 0;
+  font-size:13px;
+}
+
+.row span:first-child{
+  color:#8b98a7;
+}
+
+.total{
+  border-top:1px solid #263442;
+  margin-top:8px;
+  padding-top:12px;
+  font-weight:bold;
+}
+
+.empty{
+  text-align:center;
+  padding:45px 20px;
+  color:#8b98a7;
+  background:#111820;
+  border:1px solid #263442;
+  border-radius:16px;
+}
+
+.refresh{
+  width:100%;
+  padding:14px;
+  margin-bottom:15px;
+  border:1px solid #263442;
+  border-radius:11px;
+  background:#111820;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <button class="back" onclick="location.href='index.html'">‹</button>
+  <strong>⚡ KaelzOnline</strong>
+</header>
+
+<main class="container">
+
+  <h1>📦 Pesanan Saya</h1>
+  <p class="desc">
+    Lihat pesanan dan status pembelian kamu.
+  </p>
+
+  <button class="refresh" onclick="loadOrders()">
+    🔄 Refresh Pesanan
+  </button>
+
+  <div id="orders">
+    Memuat pesanan...
+  </div>
+
+</main>
+
+
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  get
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+
+const firebaseConfig = {
+
+  apiKey:
+    "AIzaSyBl_Tq-Bl0oU3PtLn_5Ngpyta5X7-KXgDc",
+
+  authDomain:
+    "kaelzonline.firebaseapp.com",
+
+  databaseURL:
+    "https://kaelzonline-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+  projectId:
+    "kaelzonline",
+
+  storageBucket:
+    "kaelzonline.firebasestorage.app",
+
+  messagingSenderId:
+    "1082420786764",
+
+  appId:
+    "1:1082420786764:web:24fee4ebccceb36d6566e9"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getDatabase(app);
+
+let currentUser = null;
+
+
+onAuthStateChanged(auth, user => {
+
+  if (!user) {
+
+    location.href = "login.html";
+
+    return;
+
+  }
+
+  currentUser = user;
+
+  loadOrders();
+
+});
+
+
+window.loadOrders = async function() {
+
+  if (!currentUser) return;
+
+  const container =
+    document.getElementById("orders");
+
+  container.innerHTML =
+    "Memuat pesanan...";
+
+
+  try {
+
+    const snapshot =
+      await get(
+        ref(
+          db,
+          "orders/" + currentUser.uid
+        )
+      );
+
+
+    if (!snapshot.exists()) {
+
+      container.innerHTML = `
+        <div class="empty">
+          <div style="font-size:40px">📦</div>
+          <br>
+          Belum ada pesanan.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    const data = snapshot.val();
+
+    const orders =
+      Object.values(data).reverse();
+
+
+    container.innerHTML = "";
+
+
+    orders.forEach(order => {
+
+      const date =
+        order.createdAt
+        ? new Date(order.createdAt)
+            .toLocaleString("id-ID")
+        : "-";
+
+
+      let product = "-";
+
+      if (order.category === "game") {
+
+        product =
+          `${order.game || "-"} • ${order.nominal || "-"}`;
+
+      }
+
+      else if (order.category === "ewallet") {
+
+        product =
+          `${order.wallet || "-"} • Rp${Number(order.nominal || 0).toLocaleString("id-ID")}`;
+
+      }
+
+      else if (order.category === "virtual") {
+
+        product =
+          `${order.country || "-"} • ${order.package || "-"}`;
+
+      }
+
+      else if (order.category === "logo") {
+
+        product =
+          `Logo • ${order.package || "-"}`;
+
+      }
+
+
+      const card =
+        document.createElement("div");
+
+      card.className = "order";
+
+
+      card.innerHTML = `
+
+        <div class="order-top">
+
+          <div class="order-title">
+            ${product}
+          </div>
+
+          <div class="status">
+            ${order.status || "pending"}
+          </div>
+
+        </div>
+
+        <div class="row">
+          <span>ID Pesanan</span>
+          <span>${order.orderId || "-"}</span>
+        </div>
+
+        <div class="row">
+          <span>Dibuat</span>
+          <span>${date}</span>
+        </div>
+
+        <div class="row total">
+          <span>Total</span>
+          <span>
+            Rp${Number(order.price || 0).toLocaleString("id-ID")}
+          </span>
+        </div>
+
+      `;
+
+
+      container.appendChild(card);
+
+    });
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    container.innerHTML = `
+      <div class="empty">
+        Gagal mengambil pesanan.
+      </div>
+    `;
+
+  }
+
+};
+
+</script>
+
+</body>
+</html>
